@@ -1,0 +1,13 @@
+{
+  "Total Predictions": 1282,
+  "Correct Predictions": 632,
+  "Incorrect Predictions": 650,
+  "UP Predictions": 994,
+  "DOWN Predictions": 288,
+  "Actual UP Days": 604,
+  "Actual DOWN Days": 678,
+  "Directional Accuracy": 0.493,
+  "Directional Accuracy %": 49.3,
+  "Accuracy on UP calls": 0.4769,
+  "Accuracy on DOWN calls": 0.5486
+}

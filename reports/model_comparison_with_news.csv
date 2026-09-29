@@ -1,0 +1,6 @@
+Model,Accuracy,Precision,Recall,F1,ROC-AUC,BestParams
+Logistic Regression,0.4891,0.4735,0.755,0.582,0.5135,{'C': 0.01}
+Random Forest,0.4906,0.475,0.7699,0.5875,0.5088,"{'max_depth': 6, 'min_samples_leaf': 1}"
+Gradient Boosting,0.4984,0.471,0.5248,0.4965,0.5004,"{'learning_rate': 0.1, 'max_depth': 5}"
+XGBoost,0.4891,0.4668,0.5927,0.5222,0.5035,{'max_depth': 3}
+Baseline (majority class),0.4711,0.4711,1.0,0.6405,,{}

@@ -1,0 +1,2 @@
+# Development-only dependencies (the runtime stack is in requirements.txt)
+pytest>=8.0

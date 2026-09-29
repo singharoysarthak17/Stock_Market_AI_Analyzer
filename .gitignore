@@ -1,0 +1,26 @@
+# --- Python bytecode / caches -------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# --- Test & tooling caches ----------------------------------------------
+.pytest_cache/
+.ipynb_checkpoints/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Editors / OS -------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Logs ---------------------------------------------------------------
+*.log
+pip-log.txt
+
+# --- Streamlit ----------------------------------------------------------
+.streamlit/secrets.toml
