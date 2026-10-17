@@ -1,0 +1,14 @@
+# Streamlit Community Cloud / local theme.
+# The app also injects richer CSS via src/theme.py; this base theme only makes
+# the very first paint match (dark background + orange accent) so there is no
+# white flash while the app boots.
+[theme]
+base = "dark"
+primaryColor = "#ff5c1a"
+backgroundColor = "#0d0605"
+secondaryBackgroundColor = "#1e100d"
+textColor = "#f4ece8"
+font = "sans serif"
+
+[server]
+headless = true

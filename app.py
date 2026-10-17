@@ -6,6 +6,9 @@ Run with:
 
 The app reuses the *same* ``src`` functions that produced the training data, so
 the features it feeds to the model are identical to the ones the model learned.
+The visual layer (dark red / orange "control room" dashboard) lives in
+``src.theme`` and only changes how the numbers are shown, never how they are
+computed.
 """
 
 from __future__ import annotations
@@ -31,12 +34,30 @@ from src.live import (  # noqa: E402
     price_snapshot,
     volatility_from_history,
 )
+from src.theme import (  # noqa: E402
+    THEME_CSS,
+    accent_panel,
+    chip,
+    eyebrow,
+)
 
 MODELS_DIR = Path(__file__).resolve().parent / "models"
 BUNDLE_PATH = MODELS_DIR / "bundle.pkl"
 REPORTS_DIR = Path(__file__).resolve().parent / "reports"
 
+# theme palette (mirrored here for the few inline colours the charts need)
+C_CLOSE = "#ff7a3d"
+C_MA5 = "#ffc24a"
+C_MA20 = "#e03a1a"
+C_VOLUME = "#5a2a20"
+C_RSI = "#ff5c1a"
+C_GRID = "rgba(255,255,255,0.05)"
+C_TEXT = "#a48d84"
+C_UP = "#3ddc84"
+C_DOWN = "#ff5a4e"
+
 st.set_page_config(page_title="Stock Market AI Analyzer", page_icon="📈", layout="wide")
+st.markdown(THEME_CSS, unsafe_allow_html=True)
 
 
 # --------------------------------------------------------------------------
@@ -56,6 +77,45 @@ def history(symbol: str, refresh: bool = False):
 
 
 # --------------------------------------------------------------------------
+def _gauge(value01: float, title: str) -> go.Figure:
+    """Circular donut gauge (mirrors the reference 'Math tasks' dial)."""
+    pct = max(0.0, min(1.0, value01)) * 100.0
+    fig = go.Figure(
+        go.Indicator(
+            mode="gauge+number",
+            value=pct,
+            number={"suffix": "%", "font": {"color": "#f4ece8", "size": 30}},
+            title={
+                "text": title,
+                "font": {"color": "#a48d84", "size": 12},
+            },
+            gauge={
+                "axis": {"range": [0, 100], "tickwidth": 0,
+                         "tickcolor": "rgba(255,255,255,0.2)"},
+                "bar": {"color": "#ff5c1a", "thickness": 0.30},
+                "bgcolor": "rgba(0,0,0,0)",
+                "borderwidth": 0,
+                "steps": [
+                    {"range": [0, 100], "color": "rgba(255,255,255,0.05)"},
+                ],
+                "threshold": {
+                    "line": {"color": "#ffc24a", "width": 4},
+                    "thickness": 0.75,
+                    "value": pct,
+                },
+            },
+        )
+    )
+    fig.update_layout(
+        height=230,
+        margin=dict(t=30, b=10, l=30, r=30),
+        paper_bgcolor="rgba(0,0,0,0)",
+        font={"color": "#a48d84", "family": "Poppins, sans-serif"},
+    )
+    return fig
+
+
+# --------------------------------------------------------------------------
 def main() -> None:
     bundle = load_bundle()
     if not bundle:
@@ -72,7 +132,7 @@ def main() -> None:
     with_news = bundle.get("with_news", False)
 
     # ---------------- sidebar ---------------------------------------------
-    st.sidebar.title("📈 Stock Market AI")
+    st.sidebar.markdown("## 📈 Stock Market AI")
     st.sidebar.caption("AI-Powered Stock Market Trend & News Sentiment Analyzer")
     symbol = st.sidebar.selectbox(
         "Select a stock / index",
@@ -125,40 +185,56 @@ def main() -> None:
     vol = volatility_from_history(hist, thresholds)
     headlines, senti = latest_news(symbol)
 
+    up = pred["direction"] == "UP"
+    accent = C_UP if up else C_DOWN
+    change_up = snap["change_pct"] >= 0
+
     # ---------------- header ----------------------------------------------
-    st.title("STOCK MARKET AI ANALYZER")
+    st.title("📈 STOCK MARKET AI ANALYZER")
     st.caption(f"{DISPLAY[symbol]} ({symbol})  •  data as of {snap['date']}")
 
-    left, right = st.columns([3, 2])
+    # ---------------- hero: next-day prediction ---------------------------
+    direction_icon = "▲" if up else "▼"
+    move = f"{snap['change_pct']:+.2f}%"
+    chips = " ".join([
+        chip(f"Model: {model_name}", on_accent=True),
+        chip(f"P(UP) = {100 * pred['probability_up']:.1f}%", on_accent=True),
+        chip(f"Volatility: {vol['level']}", on_accent=True),
+    ])
+    st.markdown(
+        accent_panel(
+            title="Next-day ML prediction",
+            big=f"{direction_icon}  Predicted {pred['direction']}",
+            sub=(f"Model confidence {pred['confidence']:.1f}%  •  "
+                 f"last close ₹{snap['close']:,.2f} ({move})  •  "
+                 f"row fed to model: {snap['date']}"),
+            chips=chips,
+        ),
+        unsafe_allow_html=True,
+    )
 
-    with left:
-        st.subheader("Market snapshot")
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Latest Price", f"₹{snap['close']:,.2f}" if symbol != "^NSEI"
-                  else f"{snap['close']:,.2f}")
-        c2.metric("Daily Change", f"{snap['change']:+,.2f}", f"{snap['change_pct']:+.2f}%")
-        c3.metric("Volume", f"{snap['volume']:,.0f}" if snap["volume"] > 0 else "n/a")
-        c4.metric("Volatility Level", vol["level"],
-                  f"{vol['value']:.1f}% ann." if math.isfinite(vol["value"])
-                  else "not enough sessions yet")
+    # ---------------- market snapshot metrics -----------------------------
+    st.markdown(eyebrow("Market snapshot"), unsafe_allow_html=True)
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Latest Price", f"₹{snap['close']:,.2f}" if symbol != "^NSEI"
+              else f"{snap['close']:,.2f}")
+    c2.metric("Daily Change", f"{snap['change']:+,.2f}", f"{snap['change_pct']:+.2f}%")
+    c3.metric("Volume", f"{snap['volume']:,.0f}" if snap["volume"] > 0 else "n/a")
+    c4.metric("Volatility Level", vol["level"],
+              f"{vol['value']:.1f}% ann." if math.isfinite(vol["value"])
+              else "not enough sessions yet")
 
-        st.subheader("Next-day ML prediction")
-        pc1, pc2, pc3 = st.columns([2, 2, 3])
-        icon = "↑" if pred["direction"] == "UP" else "↓"
-        color = "green" if pred["direction"] == "UP" else "red"
-        pc1.markdown(
-            f"<h1 style='color:{color};'>{icon} {pred['direction']}</h1>",
-            unsafe_allow_html=True,
+    # ---------------- confidence gauge + indicators -----------------------
+    st.markdown(eyebrow("Signal strength & indicators"), unsafe_allow_html=True)
+    gcol, icol = st.columns([2, 3])
+
+    with gcol:
+        st.plotly_chart(
+            _gauge(pred["probability_up"], "Probability of an UP day"),
+            width="stretch",
         )
-        pc2.metric("Model Confidence", f"{pred['confidence']:.1f}%")
-        pc3.caption(
-            f"Probability of UP = {100 * pred['probability_up']:.1f}%  •  "
-            f"last row fed to the model: {snap['date']}"
-        )
-        st.progress(pred["probability_up"], text=f"P(UP) = {100 * pred['probability_up']:.1f}%")
 
-    with right:
-        st.subheader("Indicators")
+    with icol:
         r = last_row.iloc[0]
         i1, i2 = st.columns(2)
         i1.metric("RSI (14)", f"{r['RSI']:.1f}")
@@ -171,11 +247,13 @@ def main() -> None:
             f"Close vs MA-20: {100 * (r['Close_vs_MA20']):+.2f}%"
         )
 
-        st.subheader("News sentiment")
-        s_label = senti["label"]
-        emoji = {"Positive": "🟢", "Negative": "🔴", "Neutral": "⚪"}.get(s_label, "⚪")
-        s1, s2 = st.columns(2)
-        s1.metric("Sentiment", f"{emoji} {s_label.upper()}")
+    # ---------------- news sentiment panel --------------------------------
+    st.markdown(eyebrow("News sentiment"), unsafe_allow_html=True)
+    s1, s2 = st.columns([3, 2])
+    s_label = senti["label"]
+    s_kind = {"Positive": "up", "Negative": "down"}.get(s_label, "neutral")
+    with s1:
+        s1.metric("Sentiment", s_label.upper())
         s2.metric("Compound score", f"{senti['compound']:+.3f}")
         st.caption(
             f"based on {senti['headlines']} recent headlines"
@@ -199,19 +277,27 @@ def main() -> None:
         vertical_spacing=0.03, subplot_titles=("Price & moving averages", "Volume", "RSI"),
     )
     fig.add_trace(go.Scatter(x=plot["Date"], y=plot["Close"], name="Close",
-                             line=dict(color="#1f77b4", width=2)), row=1, col=1)
+                             line=dict(color=C_CLOSE, width=2)), row=1, col=1)
     fig.add_trace(go.Scatter(x=plot["Date"], y=plot["MA_5"], name="MA 5",
-                             line=dict(color="#ff7f0e", width=1.3)), row=1, col=1)
+                             line=dict(color=C_MA5, width=1.3)), row=1, col=1)
     fig.add_trace(go.Scatter(x=plot["Date"], y=plot["MA_20"], name="MA 20",
-                             line=dict(color="#2ca02c", width=1.3)), row=1, col=1)
+                             line=dict(color=C_MA20, width=1.3)), row=1, col=1)
     fig.add_trace(go.Bar(x=plot["Date"], y=plot["Volume"], name="Volume",
-                         marker_color="#9ecae1"), row=2, col=1)
+                         marker_color=C_VOLUME), row=2, col=1)
     fig.add_trace(go.Scatter(x=plot["Date"], y=plot["RSI"], name="RSI",
-                             line=dict(color="#9467bd", width=1.5)), row=3, col=1)
-    fig.add_hline(y=70, line_dash="dot", line_color="red", row=3, col=1)
-    fig.add_hline(y=30, line_dash="dot", line_color="green", row=3, col=1)
-    fig.update_layout(height=760, legend=dict(orientation="h", y=1.04),
-                      margin=dict(t=40, b=20))
+                             line=dict(color=C_RSI, width=1.5)), row=3, col=1)
+    fig.add_hline(y=70, line_dash="dot", line_color=C_DOWN, row=3, col=1)
+    fig.add_hline(y=30, line_dash="dot", line_color=C_UP, row=3, col=1)
+    fig.update_layout(
+        height=760,
+        legend=dict(orientation="h", y=1.04, font={"color": C_TEXT}),
+        margin=dict(t=40, b=20),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font={"color": C_TEXT, "family": "Poppins, sans-serif"},
+    )
+    fig.update_xaxes(gridcolor=C_GRID)
+    fig.update_yaxes(gridcolor=C_GRID)
     st.plotly_chart(fig, width="stretch")
 
     # ---------------- tabs -------------------------------------------------
@@ -223,12 +309,20 @@ def main() -> None:
         if headlines.empty:
             st.info("No headlines available for this symbol yet.")
         else:
+            rows = []
             for _, row in headlines.iterrows():
-                emoji = {"Positive": "🟢", "Negative": "🔴"}.get(row["label"], "⚪")
-                st.write(
-                    f"{emoji} **{pd.to_datetime(row['Date']).date()}** — {row['Headline']}  "
-                    f"`{row['compound']:+.3f}`"
+                kind = {"Positive": "up", "Negative": "down"}.get(row["label"], "neutral")
+                rows.append(
+                    '<div class="sma-news-row">'
+                    f'<span class="sma-news-date">{pd.to_datetime(row["Date"]).date()}</span>'
+                    f'<span class="sma-news-head">{row["Headline"]}</span>'
+                    f'{chip(f"{row["compound"]:+.3f}", kind)}'
+                    "</div>"
                 )
+            st.markdown(
+                '<div class="sma-panel">' + "".join(rows) + "</div>",
+                unsafe_allow_html=True,
+            )
 
     with tab_model:
         mc1, mc2 = st.columns([3, 2])

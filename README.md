@@ -10,6 +10,25 @@ sentiment, then serves the result in an interactive **Streamlit** app.
 ![scikit-learn](https://img.shields.io/badge/ML-scikit--learn-F7931E)
 ![Phases](https://img.shields.io/badge/brief-15%20phases%20%2F%2016%20deliverables-brightgreen)
 
+---
+
+## 🚀 Live Demo
+
+**Try it live → [stock-market-ai-analyzer.streamlit.app](https://stock-market-ai-analyzer.streamlit.app)**
+
+The hosted app is free to use — no signup, no install. Pick an instrument
+(NIFTY 50, Reliance, TCS) and it will fetch the latest prices, recompute the
+trained indicators, score recent headlines and show the model's next-day
+**UP / DOWN** call, confidence gauge, volatility level and backtest, all in a
+dark red-and-orange dashboard.
+
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/deploy?repo=github.com/singharoysarthak17/Stock_Market_AI_Analyzer&branch=main&mainModule=app.py)
+
+> The badge above jumps straight to the one-click deploy flow for this repo if
+> you'd rather run your own copy. See [Deploy your own](#61-deploy-your-own-copy-streamlit-community-cloud).
+
+---
+
 > **Educational / research use only — this is not investment advice.** Held-out directional
 > accuracy is **49.3 %** versus a **47.1 %** naive baseline, i.e. only marginally better
 > than a coin flip. See [Results](#3-results) and [Limitations](#9-limitations).
@@ -242,6 +261,28 @@ model-comparison and backtest tabs. Recent prices are cached once a day under
 `data/live/` with an offline fallback, and every number shown (accuracy, F1, backtest
 counts) is read from `models/bundle.pkl`, so the app always displays the current model's
 real performance.
+
+### 6.1 Deploy your own copy (Streamlit Community Cloud)
+
+The repo is already cloud-ready — `app.py` at the root, `requirements.txt`, the trained
+`models/bundle.pkl` and an offline `data/live/` price cache are all committed, so the app
+boots with real numbers even before it can reach Yahoo Finance.
+
+1. Push/fork this repo to your own GitHub account.
+2. Open **[share.streamlit.io](https://share.streamlit.io)** → **Deploy an app** →
+   **Connect a GitHub repository** (authorize Streamlit once).
+3. Pick your repo, branch `main`, and set the main file path to `app.py`.
+4. Click **Deploy**. First build installs `requirements.txt` (~1–2 min); the live URL is
+   `https://<app-name>.streamlit.app`.
+
+Notes for the free tier:
+
+* The app reads `models/bundle.pkl` (≈2 MB) and the committed CSVs at startup — no
+  training step is needed on the server.
+* Recent prices refresh daily from `yfinance`; if the download is rate-limited, the app
+  transparently falls back to the committed `data/live/` cache.
+* `.streamlit/config.toml` is committed so the deployed app paints the dark
+  red-and-orange dashboard theme immediately (no white flash).
 
 ---
 
