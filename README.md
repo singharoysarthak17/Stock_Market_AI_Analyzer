@@ -1,6 +1,6 @@
 # Stock Market AI Analyzer
 
-**AI-powered stock-market trend & news-sentiment analyzer** — predicts whether an Indian
+**AI-powered stock-market trend & news-sentiment analyzer**: predicts whether an Indian
 instrument (NIFTY 50 index, Reliance Industries, TCS) will close **UP** or **DOWN** on the
 next trading day from historical OHLCV data, technical indicators and financial-news
 sentiment, then serves the result in an interactive **Streamlit** app.
@@ -9,27 +9,27 @@ sentiment, then serves the result in an interactive **Streamlit** app.
 ![Streamlit](https://img.shields.io/badge/app-Streamlit-FF4B4B)
 ![scikit-learn](https://img.shields.io/badge/ML-scikit--learn-F7931E)
 ![Phases](https://img.shields.io/badge/brief-15%20phases%20%2F%2016%20deliverables-brightgreen)
+[![Live demo](https://img.shields.io/badge/live-demo-ff5c1a)](https://singharoysarthak17-stock-market-ai-analyzer-app-kzsygu.streamlit.app/)
 
 ---
 
 ## 🚀 Live Demo
 
-**Try it live → [stock-market-ai-analyzer.streamlit.app](https://stock-market-ai-analyzer.streamlit.app)**
+**Live app → [singharoysarthak17-stock-market-ai-analyzer-app-kzsygu.streamlit.app](https://singharoysarthak17-stock-market-ai-analyzer-app-kzsygu.streamlit.app/)**
 
-The hosted app is free to use — no signup, no install. Pick an instrument
-(NIFTY 50, Reliance, TCS) and it will fetch the latest prices, recompute the
-trained indicators, score recent headlines and show the model's next-day
-**UP / DOWN** call, confidence gauge, volatility level and backtest, all in a
-dark red-and-orange dashboard.
+Free to use, with no signup or install. Pick an instrument (NIFTY 50, Reliance, TCS)
+and the app fetches the latest prices, recomputes the trained indicators, scores
+recent headlines and shows the model's next-day **UP / DOWN** call, confidence
+gauge, volatility level and backtest, all in a dark red-and-orange dashboard.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/deploy?repo=github.com/singharoysarthak17/Stock_Market_AI_Analyzer&branch=main&mainModule=app.py)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://singharoysarthak17-stock-market-ai-analyzer-app-kzsygu.streamlit.app/)
 
-> The badge above jumps straight to the one-click deploy flow for this repo if
-> you'd rather run your own copy. See [Deploy your own](#61-deploy-your-own-copy-streamlit-community-cloud).
+> Want your own copy? The badge above opens the live app. To deploy against your
+> own GitHub repo, see [Deploy your own](#61-deploy-your-own-copy-streamlit-community-cloud).
 
 ---
 
-> **Educational / research use only — this is not investment advice.** Held-out directional
+> **Educational / research use only: this is not investment advice.** Held-out directional
 > accuracy is **49.3 %** versus a **47.1 %** naive baseline, i.e. only marginally better
 > than a coin flip. See [Results](#3-results) and [Limitations](#9-limitations).
 
@@ -97,11 +97,11 @@ Produced by `python -m src.pipeline` on the committed data files.
 | `data/stock_data.csv` | 6,480 OHLCV bars (3 instruments) | 2018-01-01 → 2026-09-28 | Yahoo Finance via `yfinance` |
 | `data/news_data.csv` | **2,979 headlines** (RELIANCE 1,796 · TCS 889 · NIFTY 294) | 2018-10-03 → 2026-07-20 | GDELT Document API |
 
-**Split** — one global date boundary, never shuffled: train **5,138 rows**
+**Split**: one global date boundary, never shuffled: train **5,138 rows**
 (2018-01-29 → 2025-01-08) · test **1,282 rows** (2025-01-09 → 2026-09-25).
 `max(train date) < min(test date)` holds across all instruments.
 
-**Model comparison — held-out test window** (`models/model_comparison.csv`,
+**Model comparison: held-out test window** (`models/model_comparison.csv`,
 `reports/model_comparison.png`; both experiments are in the file):
 
 | Model | Acc. (no news) | F1 (no news) | Acc. (+news) | F1 (+news) |
@@ -112,12 +112,12 @@ Produced by `python -m src.pipeline` on the committed data files.
 | XGBoost | 50.4 % | 0.531 | 48.9 % | 0.522 |
 | Majority-class baseline | 47.1 % | 0.641 | 47.1 % | 0.641 |
 
-★ **selected model** — best F1 on the held-out window, *without* news sentiment.
+★ **selected model**: best F1 on the held-out window, *without* news sentiment.
 News sentiment did **not** improve anything here: three of four models moved down and the
 fourth moved up by less than the ±1.4-point sampling error of this test
 (`reports/sentiment_impact.csv`, `project_report.md` §11).
 
-**News sentiment (Phase 9)** — 2,979 real headlines scored with finance-extended VADER:
+**News sentiment (Phase 9)**: 2,979 real headlines scored with finance-extended VADER:
 
 | Symbol | Negative | Neutral | Positive |
 |---|---|---|---|
@@ -125,7 +125,7 @@ fourth moved up by less than the ±1.4-point sampling error of this test
 | TCS.NS | 24.0 % | 30.6 % | 45.4 % |
 | ^NSEI (NIFTY 50) | 15.0 % | 22.1 % | 62.9 % |
 
-**Backtest (Phase 11)** — `reports/backtest_stats.json`:
+**Backtest (Phase 11)**: `reports/backtest_stats.json`:
 
 | Metric | Value |
 |---|---|
@@ -136,10 +136,10 @@ fourth moved up by less than the ±1.4-point sampling error of this test
 | Accuracy on UP calls (994) | 47.7 % |
 | Accuracy on DOWN calls (288) | 54.9 % |
 
-**Volatility rule (Phase 12)** — 10-day rolling annualised volatility, thresholds from the
+**Volatility rule (Phase 12)**: 10-day rolling annualised volatility, thresholds from the
 training window's 33rd/67th percentiles: **LOW ≤ 14.7 %, MEDIUM ≤ 22.4 %, HIGH > 22.4 %**.
 
-**Per-instrument backtest accuracy** — ^NSEI 52.6 % · RELIANCE.NS 49.0 % · TCS.NS 46.4 %.
+**Per-instrument backtest accuracy**: ^NSEI 52.6 % · RELIANCE.NS 49.0 % · TCS.NS 46.4 %.
 
 ---
 
@@ -216,7 +216,7 @@ Phases 1–15 map to the same table above in the report (§7–§16); run
 ## 6. Getting started
 
 **Requirements:** Python 3.10+ (developed on 3.13), internet only for the initial data
-download — everything else runs offline from the committed CSVs.
+download, and everything else runs offline from the committed CSVs.
 
 ```bash
 # 1. install
@@ -264,7 +264,7 @@ real performance.
 
 ### 6.1 Deploy your own copy (Streamlit Community Cloud)
 
-The repo is already cloud-ready — `app.py` at the root, `requirements.txt`, the trained
+The repo is already cloud-ready: `app.py` at the root, `requirements.txt`, the trained
 `models/bundle.pkl` and an offline `data/live/` price cache are all committed, so the app
 boots with real numbers even before it can reach Yahoo Finance.
 
@@ -272,12 +272,14 @@ boots with real numbers even before it can reach Yahoo Finance.
 2. Open **[share.streamlit.io](https://share.streamlit.io)** → **Deploy an app** →
    **Connect a GitHub repository** (authorize Streamlit once).
 3. Pick your repo, branch `main`, and set the main file path to `app.py`.
-4. Click **Deploy**. First build installs `requirements.txt` (~1–2 min); the live URL is
-   `https://<app-name>.streamlit.app`.
+4. Click **Deploy**. The first build installs `requirements.txt` (~1–2 min) and Streamlit
+   assigns a URL of the form `https://<app-name>.streamlit.app`. This repo's deployed
+   instance is live at
+   [singharoysarthak17-stock-market-ai-analyzer-app-kzsygu.streamlit.app](https://singharoysarthak17-stock-market-ai-analyzer-app-kzsygu.streamlit.app/).
 
 Notes for the free tier:
 
-* The app reads `models/bundle.pkl` (≈2 MB) and the committed CSVs at startup — no
+* The app reads `models/bundle.pkl` (≈2 MB) and the committed CSVs at startup, so no
   training step is needed on the server.
 * Recent prices refresh daily from `yfinance`; if the download is rate-limited, the app
   transparently falls back to the committed `data/live/` cache.
@@ -305,14 +307,14 @@ python -m pytest tests -q
 
 ## 8. Data leakage guards
 
-* Features at day *t* use only data from *t* and earlier — every rolling/diff operation
-  looks backwards, and the target is created by shifting the close **forward**; it is
+* Features at day *t* use only data from *t* and earlier, because every rolling/diff
+  operation looks backwards, and the target is created by shifting the close **forward**; it is
   never part of the feature set.
 * Notebook 02 contains a *recompute-on-truncated-data* assertion: deleting the most recent
   150 rows must leave every earlier feature value bit-identical.
 * News sentiment is aggregated over a trailing 5-day window and **lagged by one day**, so
   headlines published on or after the prediction date can never be seen.
-* **One global chronological date boundary** for the 80/20 split — never shuffled, and no
+* **One global chronological date boundary** for the 80/20 split, never shuffled, and no
   training row is dated after a test row, across instruments as well as within them.
 * Hyper-parameters come from `TimeSeriesSplit` cross-validation (never random CV), and
   the scaler lives **inside** the sklearn `Pipeline`, so it is fit on training data only.
@@ -324,14 +326,14 @@ python -m pytest tests -q
 
 ## 9. Limitations
 
-* **The signal itself is weak.** Held-out accuracy ≈ 49–51 % with ROC-AUC ≈ 0.51 — a few
-  points above the naive baseline — and a strategy following the signals does not beat
+* **The signal itself is weak.** Held-out accuracy is ≈ 49–51 % with ROC-AUC ≈ 0.51, only a
+  few points above the naive baseline. A strategy following those signals does not beat
   buy-and-hold before costs.
 * **News sentiment adds nothing usable here.** It is a coarse daily aggregate of
   general-purpose sentiment: with it, three of four models moved down and the fourth was
   flat (all deltas inside noise). VADER's lexicon is extended with ~90 market terms
   (`src/sentiment.py`) because stock VADER scores headlines such as *"Revenue falls below
-  market expectations"* as Neutral — see `project_report.md` §10 for the before/after
+  market expectations"* as Neutral; see `project_report.md` §10 for the before/after
   table. A finance-tuned model (FinBERT) with event-level alignment is the obvious
   upgrade.
 * **One market, one split.** NSE instruments over 2018–2026 with a single 80/20 split; no
@@ -342,10 +344,10 @@ python -m pytest tests -q
 
 ## 10. Project report
 
-The full write-up — Phase-by-Phase description, all written answers (Phases 4A–E,
-5A–C, 6A–C, 8A–C, 9A–B, 10A–B, the five leakage channels of Phase 14 and the ten
-Phase-15 questions), methodology reasoning and reproducibility notes — is in
-**[`project_report.md`](project_report.md)**.
+**[`project_report.md`](project_report.md)** holds the full write-up: a Phase-by-Phase
+description, all written answers (Phases 4A–E, 5A–C, 6A–C, 8A–C, 9A–B, 10A–B, the five
+leakage channels of Phase 14 and the ten Phase-15 questions), the methodology reasoning
+and reproducibility notes.
 
 **Data credits:** price data from [Yahoo Finance](https://finance.yahoo.com) (via
 `yfinance`), headlines from the [GDELT Document API](https://www.gdeltproject.org),
